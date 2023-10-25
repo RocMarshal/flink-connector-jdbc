@@ -16,30 +16,14 @@
  * limitations under the License.
  */
 
-package org.apache.flink.connector.jdbc.split;
-
-import org.apache.flink.annotation.Experimental;
-import org.apache.flink.connector.jdbc.JdbcInputFormat;
-
-import javax.annotation.Nullable;
+package org.apache.flink.connector.jdbc.source.reader.extractor;
 
 import java.io.Serializable;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 
-/**
- * This interface is used by the {@link JdbcInputFormat} to compute the list of parallel query to
- * run (i.e. splits). Each query will be parameterized using a row of the matrix provided by each
- * {@link JdbcParameterValuesProvider} implementation.
- */
-@Experimental
-public interface JdbcParameterValuesProvider {
+public interface ResultExtractor<T> extends Serializable {
+    T extract(ResultSet resultSet) throws SQLException;
 
-    /** Returns the necessary parameters array to use for query in parallel a table. */
-    Serializable[][] getParameterValues();
-
-    @Nullable
-    default Serializable getLatestOptionalState() {
-        return null;
-    }
-
-    default void setOptionalState(@Nullable Serializable optionalState) {}
+    String identifier();
 }

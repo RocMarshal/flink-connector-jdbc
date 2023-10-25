@@ -23,6 +23,7 @@ import org.apache.flink.util.Preconditions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.annotation.Nonnull;
 import javax.annotation.concurrent.NotThreadSafe;
 
 import java.io.Serializable;
@@ -67,6 +68,15 @@ public class SimpleJdbcConnectionProvider implements JdbcConnectionProvider, Ser
         return connection;
     }
 
+    @Nonnull
+    @Override
+    public Properties getProperties() {
+        Properties info = jdbcOptions.getExtendProps();
+        jdbcOptions.getUsername().ifPresent(user -> info.setProperty("user", user));
+        jdbcOptions.getPassword().ifPresent(password -> info.setProperty("password", password));
+        return info;
+    }
+
     @Override
     public boolean isConnectionValid() throws SQLException {
         return connection != null
@@ -104,7 +114,7 @@ public class SimpleJdbcConnectionProvider implements JdbcConnectionProvider, Ser
 
     @Override
     public Connection getOrEstablishConnection() throws SQLException, ClassNotFoundException {
-        if (connection != null) {
+        if (isConnectionValid()) {
             return connection;
         }
         if (jdbcOptions.getDriverName() == null) {
@@ -115,10 +125,7 @@ public class SimpleJdbcConnectionProvider implements JdbcConnectionProvider, Ser
                             jdbcOptions.getPassword().orElse(null));
         } else {
             Driver driver = getLoadedDriver();
-            Properties info = new Properties();
-            jdbcOptions.getUsername().ifPresent(user -> info.setProperty("user", user));
-            jdbcOptions.getPassword().ifPresent(password -> info.setProperty("password", password));
-            connection = driver.connect(jdbcOptions.getDbURL(), info);
+            connection = driver.connect(jdbcOptions.getDbURL(), getProperties());
             if (connection == null) {
                 // Throw same exception as DriverManager.getConnection when no driver found to match
                 // caller expectation.

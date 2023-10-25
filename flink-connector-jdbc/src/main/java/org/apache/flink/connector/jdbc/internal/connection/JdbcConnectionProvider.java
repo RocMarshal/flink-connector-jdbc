@@ -19,10 +19,16 @@ package org.apache.flink.connector.jdbc.internal.connection;
 
 import org.apache.flink.annotation.Internal;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+import java.util.Properties;
 
 /** JDBC connection provider. */
 @Internal
@@ -64,4 +70,36 @@ public interface JdbcConnectionProvider {
      * @throws ClassNotFoundException driver class not found
      */
     Connection reestablishConnection() throws SQLException, ClassNotFoundException;
+
+    /**
+     * Get existing connection properties.
+     *
+     * @return existing connection properties
+     */
+    @Nonnull
+    default Properties getProperties() {
+        return new Properties();
+    }
+
+    /** Get or create sharding connections. */
+    @Nullable
+    default Collection<Connection> getOrCreateShardConnections(
+            String remoteCluster, String remoteDataBase) throws SQLException {
+        return Collections.emptyList();
+    }
+
+    /** Get or create connection for one shard. */
+    @Nullable
+    default Connection getOrCreateShardConnection(String url, String database) throws SQLException {
+        return null;
+    }
+
+    /** Get all shard urls. */
+    @Nullable
+    default List<String> getShardUrls(String remoteCluster) throws SQLException {
+        return new ArrayList<>();
+    }
+
+    /** Close all connections. */
+    default void closeConnections() {}
 }

@@ -20,10 +20,12 @@ package org.apache.flink.connector.jdbc;
 import org.apache.flink.annotation.PublicEvolving;
 import org.apache.flink.util.Preconditions;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import java.io.Serializable;
 import java.util.Optional;
+import java.util.Properties;
 
 /** JDBC connection options. */
 @PublicEvolving
@@ -37,18 +39,36 @@ public class JdbcConnectionOptions implements Serializable {
     @Nullable protected final String username;
     @Nullable protected final String password;
 
+    @Nullable protected final Properties extendProps;
+
+    @Deprecated
     protected JdbcConnectionOptions(
             String url,
             @Nullable String driverName,
             @Nullable String username,
             @Nullable String password,
             int connectionCheckTimeoutSeconds) {
+        this(url, driverName, username, password, connectionCheckTimeoutSeconds, null);
+    }
+
+    protected JdbcConnectionOptions(
+            String url,
+            @Nullable String driverName,
+            @Nullable String username,
+            @Nullable String password,
+            int connectionCheckTimeoutSeconds,
+            @Nullable Properties extendProps) {
         Preconditions.checkArgument(connectionCheckTimeoutSeconds > 0);
         this.url = Preconditions.checkNotNull(url, "jdbc url is empty");
         this.driverName = driverName;
         this.username = username;
         this.password = password;
         this.connectionCheckTimeoutSeconds = connectionCheckTimeoutSeconds;
+        this.extendProps = extendProps == null ? new Properties() : extendProps;
+    }
+
+    public @Nonnull Properties getExtendProps() {
+        return extendProps == null ? new Properties() : extendProps;
     }
 
     public String getDbURL() {
@@ -80,8 +100,15 @@ public class JdbcConnectionOptions implements Serializable {
         private String password;
         private int connectionCheckTimeoutSeconds = 60;
 
+        protected Properties extendProps;
+
         public JdbcConnectionOptionsBuilder withUrl(String url) {
             this.url = url;
+            return this;
+        }
+
+        public JdbcConnectionOptionsBuilder withExtendProps(Properties extendProps) {
+            this.extendProps = Preconditions.checkNotNull(extendProps, "extendProps");
             return this;
         }
 
@@ -114,7 +141,12 @@ public class JdbcConnectionOptions implements Serializable {
 
         public JdbcConnectionOptions build() {
             return new JdbcConnectionOptions(
-                    url, driverName, username, password, connectionCheckTimeoutSeconds);
+                    url,
+                    driverName,
+                    username,
+                    password,
+                    connectionCheckTimeoutSeconds,
+                    extendProps);
         }
     }
 }

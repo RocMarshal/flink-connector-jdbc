@@ -27,6 +27,7 @@ import javax.annotation.Nullable;
 
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Properties;
 
 import static org.apache.flink.util.Preconditions.checkNotNull;
 
@@ -49,7 +50,29 @@ public class InternalJdbcConnectionOptions extends JdbcConnectionOptions {
             JdbcDialect dialect,
             @Nullable Integer parallelism,
             int connectionCheckTimeoutSeconds) {
-        super(dbURL, driverName, username, password, connectionCheckTimeoutSeconds);
+        this(
+                dbURL,
+                tableName,
+                driverName,
+                username,
+                password,
+                dialect,
+                parallelism,
+                connectionCheckTimeoutSeconds,
+                null);
+    }
+
+    private InternalJdbcConnectionOptions(
+            String dbURL,
+            String tableName,
+            @Nullable String driverName,
+            @Nullable String username,
+            @Nullable String password,
+            JdbcDialect dialect,
+            @Nullable Integer parallelism,
+            int connectionCheckTimeoutSeconds,
+            @Nullable Properties extendProps) {
+        super(dbURL, driverName, username, password, connectionCheckTimeoutSeconds, extendProps);
         this.tableName = tableName;
         this.dialect = dialect;
         this.parallelism = parallelism;
@@ -114,6 +137,7 @@ public class InternalJdbcConnectionOptions extends JdbcConnectionOptions {
         private JdbcDialect dialect;
         private Integer parallelism;
         private int connectionCheckTimeoutSeconds = 60;
+        @Nullable private Properties extendProps;
 
         /**
          * optional, specifies the classloader to use in the planner for load the class in user jar.
@@ -143,6 +167,11 @@ public class InternalJdbcConnectionOptions extends JdbcConnectionOptions {
         /** optional, password. */
         public Builder setPassword(String password) {
             this.password = password;
+            return this;
+        }
+
+        public Builder setExtendProps(@Nullable Properties extendProps) {
+            this.extendProps = extendProps;
             return this;
         }
 
