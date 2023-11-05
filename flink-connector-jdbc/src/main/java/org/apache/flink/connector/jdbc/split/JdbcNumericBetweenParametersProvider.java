@@ -115,4 +115,19 @@ public class JdbcNumericBetweenParametersProvider implements JdbcParameterValues
         }
         return parameters;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        JdbcNumericBetweenParametersProvider that = (JdbcNumericBetweenParametersProvider) o;
+        return minVal == that.minVal
+                && maxVal == that.maxVal
+                && batchSize == that.batchSize
+                && batchNum == that.batchNum;
+    }
 }
