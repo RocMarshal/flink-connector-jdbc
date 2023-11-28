@@ -18,7 +18,7 @@
 
 package org.apache.flink.connector.jdbc.source;
 
-import org.apache.flink.annotation.Internal;
+import org.apache.flink.annotation.PublicEvolving;
 import org.apache.flink.annotation.VisibleForTesting;
 import org.apache.flink.api.common.typeinfo.TypeHint;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
@@ -51,7 +51,7 @@ import java.util.ArrayList;
 import java.util.Objects;
 
 /** JDBC source. */
-@Internal
+@PublicEvolving
 public class JdbcSource<OUT>
         implements Source<OUT, JdbcSourceSplit, JdbcSourceEnumeratorState>,
                 ResultTypeQueryable<OUT> {
@@ -135,7 +135,7 @@ public class JdbcSource<OUT>
     @Override
     public SimpleVersionedSerializer<JdbcSourceEnumeratorState>
             getEnumeratorCheckpointSerializer() {
-        return new JdbcSourceEnumStateSerializer();
+        return new JdbcSourceEnumStateSerializer((JdbcSourceSplitSerializer) getSplitSerializer());
     }
 
     @Override

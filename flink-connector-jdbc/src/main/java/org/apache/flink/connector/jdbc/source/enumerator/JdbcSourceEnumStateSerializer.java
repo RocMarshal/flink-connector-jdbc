@@ -19,6 +19,7 @@
 package org.apache.flink.connector.jdbc.source.enumerator;
 
 import org.apache.flink.connector.jdbc.source.split.JdbcSourceSplit;
+import org.apache.flink.connector.jdbc.source.split.JdbcSourceSplitSerializer;
 import org.apache.flink.core.io.SimpleVersionedSerializer;
 import org.apache.flink.util.InstantiationUtil;
 import org.apache.flink.util.Preconditions;
@@ -32,8 +33,6 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.apache.flink.connector.jdbc.source.Utils.deserializeJdbcSourceSplit;
-import static org.apache.flink.connector.jdbc.source.Utils.serializeJdbcSourceSplit;
 import static org.apache.flink.util.Preconditions.checkArgument;
 
 /** The serializer for {@link JdbcSourceEnumeratorState}. */
@@ -41,6 +40,12 @@ public class JdbcSourceEnumStateSerializer
         implements SimpleVersionedSerializer<JdbcSourceEnumeratorState>, Serializable {
 
     private static final int CURRENT_VERSION = 0;
+
+    private final JdbcSourceSplitSerializer splitSerializer;
+
+    public JdbcSourceEnumStateSerializer(JdbcSourceSplitSerializer splitSerializer) {
+        this.splitSerializer = Preconditions.checkNotNull(splitSerializer);
+    }
 
     @Override
     public int getVersion() {
@@ -79,7 +84,7 @@ public class JdbcSourceEnumStateSerializer
         out.writeInt(jdbcSourceSplits.size());
         for (JdbcSourceSplit sourceSplit : jdbcSourceSplits) {
             Preconditions.checkNotNull(sourceSplit);
-            serializeJdbcSourceSplit(out, sourceSplit);
+            splitSerializer.serializeJdbcSourceSplit(out, sourceSplit);
         }
     }
 
@@ -112,7 +117,7 @@ public class JdbcSourceEnumStateSerializer
         int size = in.readInt();
         List<JdbcSourceSplit> jdbcSourceSplits = new ArrayList<>(size);
         for (int i = 0; i < size; i++) {
-            jdbcSourceSplits.add(deserializeJdbcSourceSplit(in));
+            jdbcSourceSplits.add(splitSerializer.deserializeJdbcSourceSplit(in));
         }
         return jdbcSourceSplits;
     }

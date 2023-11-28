@@ -17,7 +17,7 @@
 
 package org.apache.flink.connector.jdbc.internal.connection;
 
-import org.apache.flink.annotation.Internal;
+import org.apache.flink.annotation.PublicEvolving;
 
 import javax.annotation.Nullable;
 
@@ -25,7 +25,7 @@ import java.sql.Connection;
 import java.sql.SQLException;
 
 /** JDBC connection provider. */
-@Internal
+@PublicEvolving
 public interface JdbcConnectionProvider {
     /**
      * Get existing connection.

@@ -59,7 +59,7 @@ import static org.apache.flink.connector.jdbc.source.JdbcSourceOptions.RESULTSET
 /**
  * The JDBC source reader to read data from jdbc splits.
  *
- * @param <T> The type of the record readed from the source.
+ * @param <T> The type of the record read from the source.
  */
 public class JdbcSourceSplitReader<T>
         implements SplitReader<RecordAndOffset<T>, JdbcSourceSplit>, ResultTypeQueryable<T> {
@@ -69,8 +69,8 @@ public class JdbcSourceSplitReader<T>
     private final Configuration config;
     @Nullable private JdbcSourceSplit currentSplit;
     private final Queue<JdbcSourceSplit> splits;
-    private TypeInformation<T> typeInformation;
-    private JdbcConnectionProvider connectionProvider;
+    private final TypeInformation<T> typeInformation;
+    private final JdbcConnectionProvider connectionProvider;
     private transient Connection connection;
     private transient PreparedStatement statement;
     private transient ResultSet resultSet;
@@ -81,11 +81,11 @@ public class JdbcSourceSplitReader<T>
 
     private final int splitReaderFetchBatchSize;
 
-    private int resultSetType;
-    private int resultSetConcurrency;
-    private int resultSetFetchSize;
+    private final int resultSetType;
+    private final int resultSetConcurrency;
+    private final int resultSetFetchSize;
     // Boolean to distinguish between default value and explicitly set autoCommit mode.
-    private Boolean autoCommit;
+    private final Boolean autoCommit;
     private int currentSplitOffset;
 
     private final SourceReaderContext context;

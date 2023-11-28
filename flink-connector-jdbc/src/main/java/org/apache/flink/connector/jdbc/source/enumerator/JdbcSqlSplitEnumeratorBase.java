@@ -18,6 +18,7 @@
 
 package org.apache.flink.connector.jdbc.source.enumerator;
 
+import org.apache.flink.annotation.PublicEvolving;
 import org.apache.flink.connector.jdbc.source.split.JdbcSourceSplit;
 
 import javax.annotation.Nullable;
@@ -31,6 +32,7 @@ import java.util.List;
  *
  * @param <SplitT> JDBC split type.
  */
+@PublicEvolving
 public abstract class JdbcSqlSplitEnumeratorBase<SplitT> implements AutoCloseable, Serializable {
     private final char[] currentId = "0000000000".toCharArray();
 
@@ -72,6 +74,7 @@ public abstract class JdbcSqlSplitEnumeratorBase<SplitT> implements AutoCloseabl
      *
      * @param <SplitT> Split type.
      */
+    @PublicEvolving
     public interface Provider<SplitT> extends Serializable {
 
         /**

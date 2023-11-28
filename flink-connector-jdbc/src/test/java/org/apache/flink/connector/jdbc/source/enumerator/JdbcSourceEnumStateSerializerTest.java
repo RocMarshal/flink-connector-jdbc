@@ -20,6 +20,7 @@ package org.apache.flink.connector.jdbc.source.enumerator;
 
 import org.apache.flink.connector.jdbc.source.split.CheckpointedOffset;
 import org.apache.flink.connector.jdbc.source.split.JdbcSourceSplit;
+import org.apache.flink.connector.jdbc.source.split.JdbcSourceSplitSerializer;
 
 import org.junit.jupiter.api.Test;
 
@@ -47,9 +48,10 @@ class JdbcSourceEnumStateSerializerTest {
                     Arrays.asList(new JdbcSourceSplit("1", "select 1", null, 0, null)),
                     null);
     private final JdbcSourceEnumeratorState mockedState = new MockedJdbcSourceEnumState(state);
-    private final JdbcSourceEnumStateSerializer serializer = new JdbcSourceEnumStateSerializer();
+    private final JdbcSourceEnumStateSerializer serializer =
+            new JdbcSourceEnumStateSerializer(new JdbcSourceSplitSerializer());
     private final JdbcSourceEnumStateSerializer mockedSerializer =
-            new JdbcSourceEnumStateSerializer() {
+            new JdbcSourceEnumStateSerializer(new JdbcSourceSplitSerializer()) {
                 @Override
                 public int getVersion() {
                     return new Random().nextInt(10) + 1;
