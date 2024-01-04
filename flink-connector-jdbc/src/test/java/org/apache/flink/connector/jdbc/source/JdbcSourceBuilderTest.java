@@ -65,6 +65,8 @@ class JdbcSourceBuilderTest {
                 .isInstanceOf(IllegalArgumentException.class);
         assertThatThrownBy(() -> JdbcSource.builder().setSql(emptySql))
                 .isInstanceOf(IllegalArgumentException.class);
+        assertThatThrownBy(() -> JdbcSource.builder().setDBUrl(dbUrl).build())
+                .isInstanceOf(IllegalStateException.class);
         // For valid.
         JdbcSource<Row> jdbcSource = sourceBuilder.build();
         SqlTemplateSplitEnumerator sqlEnumerator =
@@ -127,5 +129,17 @@ class JdbcSourceBuilderTest {
 
         JdbcSource<Row> jdbcSource = sourceBuilder.setTypeInformation(typeInformation).build();
         assertThat(jdbcSource.getTypeInformation()).isSameAs(typeInformation);
+
+        assertThatThrownBy(
+                        () ->
+                                JdbcSource.<Row>builder()
+                                        .setSql(validSql)
+                                        .setResultExtractor(extractor)
+                                        .setDBUrl(dbUrl)
+                                        .setDriverName(driverName)
+                                        .setPassword(password)
+                                        .setUsername(username)
+                                        .build())
+                .isInstanceOf(NullPointerException.class);
     }
 }

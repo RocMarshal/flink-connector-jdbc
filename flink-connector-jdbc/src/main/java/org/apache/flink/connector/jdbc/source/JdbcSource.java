@@ -20,7 +20,6 @@ package org.apache.flink.connector.jdbc.source;
 
 import org.apache.flink.annotation.PublicEvolving;
 import org.apache.flink.annotation.VisibleForTesting;
-import org.apache.flink.api.common.typeinfo.TypeHint;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.api.connector.source.Boundedness;
 import org.apache.flink.api.connector.source.Source;
@@ -44,6 +43,7 @@ import org.apache.flink.connector.jdbc.source.split.JdbcSourceSplitSerializer;
 import org.apache.flink.core.io.SimpleVersionedSerializer;
 import org.apache.flink.util.Preconditions;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import java.io.Serializable;
@@ -71,18 +71,30 @@ public class JdbcSource<OUT>
             JdbcConnectionProvider connectionProvider,
             JdbcSqlSplitEnumeratorBase.Provider<JdbcSourceSplit> sqlSplitEnumeratorProvider,
             ResultExtractor<OUT> resultExtractor,
-            @Nullable TypeInformation<OUT> typeInformation,
+            @Nonnull TypeInformation<OUT> typeInformation,
             @Nullable DeliveryGuarantee deliveryGuarantee) {
         this.configuration = Preconditions.checkNotNull(configuration);
         this.connectionProvider = Preconditions.checkNotNull(connectionProvider);
         this.sqlSplitEnumeratorProvider = Preconditions.checkNotNull(sqlSplitEnumeratorProvider);
         this.resultExtractor = Preconditions.checkNotNull(resultExtractor);
         this.deliveryGuarantee =
-                Objects.isNull(deliveryGuarantee) ? DeliveryGuarantee.NONE : deliveryGuarantee;
-        this.typeInformation =
-                Objects.isNull(typeInformation)
-                        ? TypeInformation.of(new TypeHint<OUT>() {})
-                        : typeInformation;
+                deliveryGuarantee == null ? DeliveryGuarantee.NONE : deliveryGuarantee;
+        this.typeInformation = Preconditions.checkNotNull(typeInformation);
+        this.boundedness = Boundedness.BOUNDED;
+    }
+
+    JdbcSource(
+            Configuration configuration,
+            JdbcConnectionProvider connectionProvider,
+            JdbcSqlSplitEnumeratorBase.Provider<JdbcSourceSplit> sqlSplitEnumeratorProvider,
+            ResultExtractor<OUT> resultExtractor,
+            @Nonnull TypeInformation<OUT> typeInformation) {
+        this.configuration = Preconditions.checkNotNull(configuration);
+        this.connectionProvider = Preconditions.checkNotNull(connectionProvider);
+        this.sqlSplitEnumeratorProvider = Preconditions.checkNotNull(sqlSplitEnumeratorProvider);
+        this.resultExtractor = Preconditions.checkNotNull(resultExtractor);
+        this.deliveryGuarantee = DeliveryGuarantee.NONE;
+        this.typeInformation = Preconditions.checkNotNull(typeInformation);
         this.boundedness = Boundedness.BOUNDED;
     }
 

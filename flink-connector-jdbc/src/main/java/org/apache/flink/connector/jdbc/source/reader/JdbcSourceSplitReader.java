@@ -132,9 +132,9 @@ public class JdbcSourceSplitReader<T>
         int batch = this.splitReaderFetchBatchSize;
         while (batch > 0 && hasNextRecordCurrentSplit) {
             try {
-                T ele = resultExtractor.extract(resultSet);
+                T record = resultExtractor.extract(resultSet);
                 recordAndOffsetBuilder.add(
-                        currentSplit, new RecordAndOffset<>(ele, ++currentSplitOffset, 0));
+                        currentSplit, new RecordAndOffset<>(record, ++currentSplitOffset, 0));
                 batch--;
                 hasNextRecordCurrentSplit = resultSet.next();
             } catch (Exception e) {
@@ -240,7 +240,7 @@ public class JdbcSourceSplitReader<T>
         }
     }
 
-    private void reOpenConnectionIfNeeded() throws SQLException, ClassNotFoundException {
+    private void getOrEstablishConnection() throws SQLException, ClassNotFoundException {
         connection = connectionProvider.getOrEstablishConnection();
         if (autoCommit == null) {
             return;
@@ -252,7 +252,7 @@ public class JdbcSourceSplitReader<T>
 
     private void openResultSetForSplit(JdbcSourceSplit split)
             throws SQLException, ClassNotFoundException {
-        reOpenConnectionIfNeeded();
+        getOrEstablishConnection();
         statement =
                 connection.prepareStatement(
                         split.getSqlTemplate(), resultSetType, resultSetConcurrency);

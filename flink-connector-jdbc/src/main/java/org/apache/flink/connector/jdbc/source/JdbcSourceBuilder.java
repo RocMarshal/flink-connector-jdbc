@@ -36,8 +36,6 @@ import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nonnull;
 
-import java.sql.ResultSet;
-
 import static org.apache.flink.connector.jdbc.source.JdbcSourceOptions.AUTO_COMMIT;
 import static org.apache.flink.connector.jdbc.source.JdbcSourceOptions.READER_FETCH_BATCH_SIZE;
 import static org.apache.flink.connector.jdbc.source.JdbcSourceOptions.RESULTSET_CONCURRENCY;
@@ -74,9 +72,9 @@ public class JdbcSourceBuilder<OUT> {
     JdbcSourceBuilder() {
         this.configuration = new Configuration();
         this.connOptionsBuilder = new JdbcConnectionOptions.JdbcConnectionOptionsBuilder();
-        this.splitReaderFetchBatchSize = 1024;
-        this.resultSetType = ResultSet.TYPE_FORWARD_ONLY;
-        this.resultSetConcurrency = ResultSet.CONCUR_READ_ONLY;
+        this.splitReaderFetchBatchSize = READER_FETCH_BATCH_SIZE.defaultValue();
+        this.resultSetType = RESULTSET_TYPE.defaultValue();
+        this.resultSetConcurrency = RESULTSET_CONCURRENCY.defaultValue();
         this.deliveryGuarantee = DeliveryGuarantee.NONE;
         // Boolean to distinguish between default value and explicitly set autoCommit mode.
         this.autoCommit = true;
@@ -186,12 +184,11 @@ public class JdbcSourceBuilder<OUT> {
         this.configuration.set(READER_FETCH_BATCH_SIZE, splitReaderFetchBatchSize);
         this.configuration.set(AUTO_COMMIT, autoCommit);
 
-        if (StringUtils.isNullOrWhitespaceOnly(sql)) {
-            throw new NullPointerException("No void sql set");
-        }
-        if (resultExtractor == null) {
-            throw new NullPointerException("'resultSet' record extractor mustn't null");
-        }
+        Preconditions.checkState(
+                !StringUtils.isNullOrWhitespaceOnly(sql), "Invalid (empty or null) sql.");
+        Preconditions.checkNotNull(resultExtractor, "'resultSet' record extractor mustn't null");
+        Preconditions.checkNotNull(typeInformation, "'typeInformation' mustn't be null.");
+
         return new JdbcSource<>(
                 configuration,
                 connectionProvider,

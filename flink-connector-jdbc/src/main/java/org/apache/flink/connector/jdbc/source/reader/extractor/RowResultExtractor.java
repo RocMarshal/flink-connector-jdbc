@@ -36,9 +36,4 @@ public class RowResultExtractor implements ResultExtractor<Row> {
         }
         return row;
     }
-
-    @Override
-    public String identifier() {
-        return "RowResultExtractor";
-    }
 }

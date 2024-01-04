@@ -48,7 +48,7 @@ public interface ResultExtractor<T> extends Serializable {
      * @return identifier in {@link String} type.
      */
     default String identifier() {
-        return "default";
+        return this.getClass().getSimpleName();
     }
 
     static ResultExtractor<Row> ofRowResultExtractor() {
